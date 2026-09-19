@@ -1,14 +1,18 @@
-import { useAccount } from "wagmi"
-import { SOMNIA_CHAIN_ID, SOMNIA_CHAIN_NAME } from "@/lib/somnia-config"
+import { useAccount, useChainId } from "wagmi"
+import { ELECTRONEUM_CHAIN_ID, ELECTRONEUM_CHAIN_NAME } from "@/lib/electroneum-config"
 
 export function useNetworkCheck() {
-  const { chainId } = useAccount()
-  const isOnSomnia = chainId === SOMNIA_CHAIN_ID
+  const { chainId, chain } = useAccount()
+  const globalChainId = useChainId()
+  const activeChainId = Number(chain?.id ?? chainId ?? globalChainId)
+
+  const isOnElectroneum = activeChainId === ELECTRONEUM_CHAIN_ID || activeChainId === 52014 || activeChainId === 5201420
 
   return {
-    isOnSomnia,
-    currentChainId: chainId,
-    somniaName: SOMNIA_CHAIN_NAME,
-    somniaId: SOMNIA_CHAIN_ID,
+    isOnElectroneum,
+    isOnSomnia: isOnElectroneum, // Backward-compatible alias
+    currentChainId: activeChainId,
+    electroneumName: ELECTRONEUM_CHAIN_NAME,
+    electroneumId: ELECTRONEUM_CHAIN_ID,
   }
 }

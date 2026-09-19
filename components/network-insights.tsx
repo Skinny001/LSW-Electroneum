@@ -235,7 +235,7 @@ export function NetworkInsights() {
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {player.wins} wins • {formatEther(player.totalEarned)} STT earned
+                        {player.wins} wins • {formatEther(player.totalEarned)} ETN earned
                       </div>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAccount } from "wagmi"
 import { createPublicClient, http } from "viem"
-import { somniaTestnet } from "@/lib/wagmi-config"
+import { electroneumTestnet } from "@/lib/wagmi-config"
 
 export function useWalletBalance() {
   const { address, isConnected } = useAccount()
@@ -15,8 +15,8 @@ export function useWalletBalance() {
     }
     setLoading(true)
     const publicClient = createPublicClient({
-      transport: http(somniaTestnet.rpcUrls.default.http[0]),
-      chain: somniaTestnet,
+      transport: http(electroneumTestnet.rpcUrls.default.http[0], { retryCount: 5, retryDelay: 2000 }),
+      chain: electroneumTestnet,
     })
     publicClient.getBalance({ address: address as `0x${string}` })
       .then((bal) => setBalance(bal))
@@ -25,3 +25,4 @@ export function useWalletBalance() {
 
   return { balance, loading }
 }
+

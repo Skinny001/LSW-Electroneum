@@ -61,7 +61,7 @@ export function formatAddress(address: string): string {
 //hbar uses 8 decimals
 // the issue here is contract retunr bigint in string format
 export function formatHbar(value: bigint | string | number): string {
-  // Use 18 decimals for Somnia STT token display (keeps function name for
+  // Use 18 decimals for Electroneum ETN token display (keeps function name for
   // compatibility with the rest of the codebase).
   
   // Ensure value is BigInt
@@ -95,10 +95,9 @@ export function formatHbar(value: bigint | string | number): string {
   return `${whole}.${remainderStr}`
 }
 
-
-
 export function hbarToTinybar(amount: string | number): bigint {
-  // Convert STT (decimal) to smallest unit (wei-like, 10^18)
+  // Convert ETN (decimal) to smallest unit (wei-like, 10^18)
   return BigInt(Math.floor(Number(amount) * 1e18));
 }
+
 

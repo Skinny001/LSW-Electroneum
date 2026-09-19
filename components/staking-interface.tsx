@@ -5,7 +5,7 @@ import { useContractWrite } from "@/hooks/use-contract-write"
 import { useWaitForTransactionReceipt } from "wagmi"
 import { Button } from "@/components/ui/button"
 import {  formatHbar} from "@/lib/format-utils"
-import { MINIMUM_STAKE } from "@/lib/somnia-config"
+import { MINIMUM_STAKE } from "@/lib/electroneum-config"
 import { GameEventEmitters } from "@/lib/somnia-sdk"
 
 interface StakingInterfaceProps {
@@ -78,7 +78,7 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
       
       // Clear pending state and show success
       setPendingStakeAmount(null)
-      setSuccessMessage(`Stake confirmed! Amount: ${formatHbar(pendingStakeAmount)} STT`)
+      setSuccessMessage(`Stake confirmed! Amount: ${formatHbar(pendingStakeAmount)} ETN`)
     }
   }, [isConfirmed, receipt, pendingStakeAmount, address, roundId])
   
@@ -107,31 +107,43 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
   }, [error])
 
   const handleStake = async () => {
-    // Automatically stake the contract's fetched minimum amount
     if (!isConnected) {
       setShowWalletPrompt(true)
       setLocalError("Please connect your wallet to stake")
-      console.log("Stake failed: wallet not connected")
-      return
-    }
-    if (!minimumStake) {
-      setLocalError("Stake amount not available")
-      console.log("Stake failed: minimum stake not loaded")
       return
     }
     setLocalError(null)
     setSuccessMessage(null)
-    
-    // Store the stake amount for when transaction confirms
-    setPendingStakeAmount(minimumStake)
+    setPendingStakeAmount(minimumStake || MINIMUM_STAKE)
     
     try {
       const result = await executeStake()
-      console.log("Stake transaction submitted:", result)
-      console.log("⏳ Waiting for transaction confirmation before adding activity...")
-    } catch (err) {
-      console.log("Stake transaction error:", err)
-      setPendingStakeAmount(null) // Clear pending state on error
+      if (result) {
+        console.log("Stake transaction submitted via wallet:", result)
+        setSuccessMessage(`Stake submitted: ${String(result).slice(0, 10)}...`)
+        return
+      }
+    } catch (err: any) {
+      console.warn("Wallet stake failed or rate-limited, triggering server relayer fallback...", err)
+    }
+
+    // Fallback: server relayer if wallet RPC is rate limited
+    try {
+      setLocalError("Wallet RPC rate limited. Relaying stake via server...")
+      const res = await fetch("/api/stake-relayer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userAddress: address }),
+      })
+      const data = await res.json()
+      if (data.success && data.hash) {
+        setLocalError(null)
+        setSuccessMessage(`Stake confirmed on-chain! Tx: ${data.hash.slice(0, 10)}...`)
+      } else {
+        setLocalError(data.error || "Stake transaction failed")
+      }
+    } catch (relayErr: any) {
+      setLocalError("Stake failed: " + (relayErr?.message || "Server error"))
     }
   }
 
@@ -143,14 +155,42 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
     }
     setLocalError(null)
     setSuccessMessage(null)
-    await executeStartNewRound()
+    
+    try {
+      const result = await executeStartNewRound()
+      if (result) {
+        setSuccessMessage(`New round submitted: ${String(result).slice(0, 10)}...`)
+        return
+      }
+    } catch (err: any) {
+      console.warn("Wallet startNewRound failed, triggering server relayer fallback...", err)
+    }
+
+    // Fallback: server relayer if wallet RPC is rate limited
+    try {
+      setLocalError("Wallet RPC rate limited. Relaying start round via server...")
+      const res = await fetch("/api/stake-relayer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userAddress: address, action: "startNewRound" }),
+      })
+      const data = await res.json()
+      if (data.success && data.hash) {
+        setLocalError(null)
+        setSuccessMessage(`New round confirmed on-chain! Tx: ${data.hash.slice(0, 10)}...`)
+      } else {
+        setLocalError(data.error || "Start round transaction failed")
+      }
+    } catch (relayErr: any) {
+      setLocalError("Start round failed: " + (relayErr?.message || "Server error"))
+    }
   }
 
   return (
     <div className="bg-card border border-border rounded-lg p-6 space-y-4">
       <div className="space-y-2">
-  <h3 className="text-lg font-semibold">Stake STT</h3>
-  <p className="text-sm text-muted-foreground">Minimum stake: {formatHbar(minimumStake)} STT</p>
+  <h3 className="text-lg font-semibold">Stake ETN</h3>
+  <p className="text-sm text-muted-foreground">Minimum stake: {formatHbar(minimumStake)} ETN</p>
         {isConnected && address && (
           <p className="text-xs text-accent">
             Connected: {address.slice(0, 6)}...{address.slice(-4)}
@@ -182,24 +222,6 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
         </div>
       ) : (
         <div className="space-y-3">
-          {/* <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={stakeInput}
-              onChange={(e) => {
-                const v = e.target.value
-                setStakeInput(v)
-                const parsed = parseEther(v)
-                setIsAmountValid(parsed !== null && parsed >= MINIMUM_STAKE)
-              }}
-              className="input input-bordered w-full"
-              aria-label="Stake amount in STT"
-            />
-            <div className="text-xs text-muted-foreground">STT</div>
-          </div>
-          {!isAmountValid && (
-            <div className="text-xs text-destructive">Amount must be a valid number and at least {formatEther(MINIMUM_STAKE)} STT</div>
-          )} */}
           <Button
             onClick={handleStake}
             disabled={isLoading || isConfirming || !isConnected || !isAmountValid}
@@ -212,10 +234,11 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
                 ? "Processing..."
                 : isConfirming
                   ? "Confirming Transaction..."
-                  : `Stake ${formatHbar(minimumStake)} STT`}
+                  : `Stake ${formatHbar(minimumStake)} ETN`}
           </Button>
         </div>
       )}
+
 
       {localError && (
         <div className="bg-destructive/10 border border-destructive/30 rounded p-3">

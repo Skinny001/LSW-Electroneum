@@ -37,11 +37,11 @@ export function AdminPanel({ onStakeAmountUpdate }: AdminPanelProps) {
             type="number"
             step="0.000000000000000001"
             min="0"
-            placeholder="e.g. 0.01 (STT)"
+            placeholder="e.g. 0.01 (ETN)"
             value={stakeAmount}
             onChange={e => {
               const val = e.target.value;
-              // allow up to 18 decimal places for STT
+              // allow up to 18 decimal places for ETN
               if (!/^\d*(\.\d{0,18})?$/.test(val)) {
                 setInputError("Stake amount must be a non-negative number with up to 18 decimals.");
               } else {
@@ -59,7 +59,8 @@ export function AdminPanel({ onStakeAmountUpdate }: AdminPanelProps) {
                 return;
               }
 
-              // Convert STT (18 decimals) to its smallest unit (wei-like) using BigInt math
+              // Convert ETN (18 decimals) to its smallest unit using BigInt math
+
               const [whole, fraction = ""] = stakeAmount.split(".");
               const wholeBig = BigInt(whole || "0");
               // Defensive: ensure fraction contains only digits and pad/truncate to 18 digits

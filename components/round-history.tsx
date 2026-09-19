@@ -65,7 +65,7 @@ export default function RoundHistory() {
             <Trophy className="mx-auto h-12 w-12 opacity-50 mb-3" />
             <p className="text-lg font-medium">No completed rounds yet</p>
             <p className="text-sm">Round history will appear here when rounds are completed</p>
-            <p className="text-xs mt-4 text-muted-foreground/70">Using Somnia Data Streams for real-time updates</p>
+            <p className="text-xs mt-4 text-muted-foreground/70">Using Electroneum EVM log queries for real-time updates</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -151,7 +151,7 @@ export default function RoundHistory() {
                               </span>
                             </div>
                             <span className="text-xs font-bold text-green-600">
-                              {(Number(round.totalAmount) / 1e18).toFixed(4)} STT
+                              {(Number(round.totalAmount) / 1e18).toFixed(4)} ETN
                             </span>
                           </div>
                         </div>
@@ -167,9 +167,10 @@ export default function RoundHistory() {
         <Separator className="my-4" />
         
         <div className="text-xs text-muted-foreground text-center">
-          Powered by Somnia Data Streams • Real-time on-chain data
+          Powered by Electroneum EVM • Real-time on-chain data
         </div>
       </CardContent>
     </Card>
   )
 }
+

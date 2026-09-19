@@ -1,8 +1,20 @@
-# Last Staker Win (LSW) - Smart Contract
+# Last Staker Win (LSW) - Smart Contract (Electroneum EVM)
 
 ## Overview
 
-Last Staker Win (LSW) is a blockchain-based game where participants stake ETH to become the "last staker" within a time window. The last person to stake before the deadline wins the majority of the pool, while other participants and the platform treasury receive smaller rewards.
+Last Staker Win (LSW) is a competitive EVM game where participants stake native ETN tokens to become the "last staker" within a time window. The last person to stake before the deadline wins 70% of the pool, while random participants receive 20% and the platform treasury receives 10%.
+
+---
+
+### Deployed Smart Contracts (Electroneum Testnet)
+
+* **LSW Contract:** `0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2`
+  * **Explorer:** [https://testnet-blockexplorer.electroneum.com/address/0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2](https://testnet-blockexplorer.electroneum.com/address/0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2)
+
+* **Rewarder Contract:** `0xb33A94Bf2c58AA7cAdA03c219860ecDf7DaeD299`
+  * **Explorer:** [https://testnet-blockexplorer.electroneum.com/address/0xb33A94Bf2c58AA7cAdA03c219860ecDf7DaeD299](https://testnet-blockexplorer.electroneum.com/address/0xb33A94Bf2c58AA7cAdA03c219860ecDf7DaeD299)
+
+
 
 ## Contract Architecture
 
@@ -195,10 +207,11 @@ This project is licensed under the UNLICENSED license.
 For questions or issues, please create an issue in the repository or contact the development team.
 
 ### LSW Contract
-- **Address:** `0xab20e6D156F6F1ea70793a70C01B1a379b603D50`
-- **Explorer:** https://somnia.w3us.site/address/0xab20e6D156F6F1ea70793a70C01B1a379b603D50
-
+- **Address:** `0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2`
+- **Explorer:** https://testnet-blockexplorer.electroneum.com/address/0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2
 
 ### Rewarder Contract
-- **Address:** `0x0673d3E814Ea61E3c7400E97E5ec31B6b84ff872`
-- **Explorer:** https://somnia.w3us.site/address/0x0673d3E814Ea61E3c7400E97E5ec31B6b84ff872
+- **Address:** `0xb33A94Bf2c58AA7cAdA03c219860ecDf7DaeD299`
+- **Explorer:** https://testnet-blockexplorer.electroneum.com/address/0xb33A94Bf2c58AA7cAdA03c219860ecDf7DaeD299
+
+

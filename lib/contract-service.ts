@@ -8,7 +8,8 @@ import { LSW_ABI, REWARDER_ABI } from "./contract-abi"
 
 // Public client used for read-only calls and log polling
 const publicClient = createPublicClient({
-  transport: http(somniaTestnet.rpcUrls.default.http[0]),
+  // Use server-side proxy for client reads to mitigate rate limits
+  transport: typeof window !== 'undefined' ? http("/api/rpc") : http(somniaTestnet.rpcUrls.default.http[0]),
   chain: somniaTestnet,
 })
 
@@ -89,7 +90,7 @@ export async function startNewRound(_account: `0x${string}`): Promise<string> {
 
 // Event watchers implemented with a simple log polling approach.
 // Each watcher returns an unsubscribe function that stops the polling.
-function createLogPoller(eventName: string, handler: (log: Log) => void, pollInterval = 5000) {
+function createLogPoller(eventName: string, handler: (log: Log) => void, pollInterval = 15000) {
   let mounted = true
   let lastBlock = BigInt(0)
 
@@ -239,9 +240,9 @@ export async function fetchRecentRounds(limit = 10) {
   try {
     const currentBlock = BigInt(await publicClient.getBlockNumber())
     
-    // Somnia RPC has 1000 block limit, so we'll use chunked queries
-    const MAX_BLOCK_RANGE = 900 // Stay under 1000 limit with safety margin
-    const totalRange = 2000 // Total blocks to scan (reduced from 5000)
+    // RPC has block range limits (typically 500-1000 blocks), so we use chunked queries
+    const MAX_BLOCK_RANGE = 500 // Stay safely under RPC limits
+    const totalRange = 1000 // Total blocks to scan
     const fromBlock = currentBlock > BigInt(totalRange) ? currentBlock - BigInt(totalRange) : BigInt(0)
     
     // Helper function to chunk log queries
@@ -443,74 +444,47 @@ export async function fetchRecentRounds(limit = 10) {
   }
 }
 
-/**
- * Fetch specific missing rounds by their IDs from Logs API
- * The API returns fully decoded events - just filter for RoundEnded with our missing IDs
- */
 export async function fetchMissingRounds(missingRoundIds: bigint[]) {
   if (missingRoundIds.length === 0) return []
-  
+
   try {
-    const apiUrl = `https://somnia.w3us.site/api/v2/addresses/${LSW_CONTRACT_ADDRESS}/logs`
+    const currentBlock = await publicClient.getBlockNumber()
+    const fromBlock = currentBlock > BigInt(800) ? currentBlock - BigInt(800) : BigInt(0)
+    
+    const logs = await publicClient.getLogs({
+      address: LSW_CONTRACT_ADDRESS as `0x${string}`,
+      fromBlock,
+      toBlock: currentBlock,
+    })
 
-    
-    const response = await fetch(apiUrl)
-
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-
-    
-    const allLogs = data.items || []
     const missingRoundIdSet = new Set(missingRoundIds.map(id => id.toString()))
     const foundRounds: Record<string, any> = {}
-    
 
-    
-    // Filter for RoundEnded events with our missing round IDs
-    for (const log of allLogs) {
+    for (const log of logs) {
       try {
-        const methodCall = log.decoded?.method_call
-        
-        // Check if this is a RoundEnded event
-        if (methodCall?.includes('RoundEnded')) {
-          const params = log.decoded?.parameters || []
-          const roundIdParam = params.find((p: any) => p.name === 'roundId')
-          const roundId = roundIdParam?.value
-          const roundIdStr = roundId?.toString()
-          
+        const parsed: any = decodeEventLog({ abi: LSW_ABI as any, data: log.data, topics: log.topics })
+        if (parsed?.eventName === 'RoundEnded' || parsed?.name === 'RoundEnded') {
+          const roundId = BigInt(parsed.args?.[0] ?? BigInt(0))
+          const roundIdStr = roundId.toString()
 
-          
-          // Check if this is one of our missing rounds
-          if (roundIdStr && missingRoundIdSet.has(roundIdStr)) {
-            const winnerParam = params.find((p: any) => p.name === 'winner')
-            const totalAmountParam = params.find((p: any) => p.name === 'totalAmount')
-            
+          if (missingRoundIdSet.has(roundIdStr)) {
+            const winner = String(parsed.args?.[1] ?? '0x0000000000000000000000000000000000000000')
+            const totalAmount = BigInt(parsed.args?.[2] ?? BigInt(0))
+
             foundRounds[roundIdStr] = {
-              roundId: BigInt(roundId),
-              winner: winnerParam?.value || '0x0000000000000000000000000000000000000000',
-              totalAmount: BigInt(totalAmountParam?.value || '0'),
+              roundId,
+              winner,
+              totalAmount,
               timestamp: Math.floor(Date.now() / 1000)
             }
-            
-
           }
         }
       } catch (err) {
-        console.warn(`⚠️ Error parsing log:`, err)
+        // Ignore unparseable logs
       }
     }
-    
-    // Return in order of missing round IDs
-    const result = missingRoundIds
-      .map(id => foundRounds[id.toString()])
-      .filter(Boolean)
-    
 
-    return result
+    return missingRoundIds.map(id => foundRounds[id.toString()]).filter(Boolean)
   } catch (err) {
     console.error('❌ Error fetching missing rounds:', err)
     return []
@@ -519,32 +493,28 @@ export async function fetchMissingRounds(missingRoundIds: bigint[]) {
 
 export async function fetchLatestRoundEvent() {
   try {
-    const apiUrl = `https://somnia.w3us.site/api/v2/addresses/${LSW_CONTRACT_ADDRESS}/logs`
-    const response = await fetch(apiUrl)
-    const data = await response.json()
-    const allLogs = data.items || []
+    const currentBlock = await publicClient.getBlockNumber()
+    const fromBlock = currentBlock > BigInt(800) ? currentBlock - BigInt(800) : BigInt(0)
+    
+    const logs = await publicClient.getLogs({
+      address: LSW_CONTRACT_ADDRESS as `0x${string}`,
+      fromBlock,
+      toBlock: currentBlock,
+    })
 
-
-
-    // Logs are already sorted newest first, find first RoundEnded
-    for (const log of allLogs) {
-      const methodCall = log.decoded?.method_call
-      if (methodCall?.includes('RoundEnded')) {
-        const params = log.decoded?.parameters || []
-        const roundIdParam = params.find((p: any) => p.name === 'roundId')
-        const winnerParam = params.find((p: any) => p.name === 'winner')
-        const totalAmountParam = params.find((p: any) => p.name === 'totalAmount')
-
-
-
-        if (roundIdParam?.value && winnerParam?.value && totalAmountParam?.value) {
-
+    for (let i = logs.length - 1; i >= 0; i--) {
+      const log = logs[i]
+      try {
+        const parsed: any = decodeEventLog({ abi: LSW_ABI as any, data: log.data, topics: log.topics })
+        if (parsed?.eventName === 'RoundEnded' || parsed?.name === 'RoundEnded') {
           return {
-            roundId: BigInt(roundIdParam.value),
-            winner: winnerParam.value,
-            totalAmount: BigInt(totalAmountParam.value)
+            roundId: BigInt(parsed.args?.[0] ?? BigInt(0)),
+            winner: String(parsed.args?.[1] ?? '0x0000000000000000000000000000000000000000'),
+            totalAmount: BigInt(parsed.args?.[2] ?? BigInt(0))
           }
         }
+      } catch {
+        // Ignore parsing error
       }
     }
     console.warn('⚠️ No RoundEnded events found in logs')
@@ -553,4 +523,5 @@ export async function fetchLatestRoundEvent() {
   }
   return null
 }
+
 

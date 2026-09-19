@@ -74,7 +74,7 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
           {showNetworkData 
             ? formatHbar(networkStats.totalPrizePool) 
             : formatHbar(totalAmount)
-          } STT
+          } ETN
         </div>
         {showNetworkData && (
           <p className="text-xs text-muted-foreground">
@@ -122,41 +122,41 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
       <div className="space-y-3 pt-4 border-t border-border">
         <div className="flex justify-between items-center">
           <span className="text-sm text-muted-foreground">
-            Winner (70%) {showNetworkData && '- SDK Network'}
+            Winner (70%) {showNetworkData && '- Network'}
           </span>
           <span className="font-semibold text-accent">
             {showNetworkData 
               ? formatHbar((networkStats.totalPrizePool * BigInt(70)) / BigInt(100))
               : formatHbar(winnerReward)
-            } STT
+            } ETN
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm text-muted-foreground">
-            Random Participants (20%) {showNetworkData && '- SDK Network'}
+            Random Participants (20%) {showNetworkData && '- Network'}
           </span>
           <span className="font-semibold text-foreground">
             {showNetworkData 
               ? formatHbar((networkStats.totalPrizePool * BigInt(20)) / BigInt(100))
               : formatHbar(participantReward)
-            } STT
+            } ETN
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm text-muted-foreground">
-            Treasury (10%) {showNetworkData && '- SDK Network'}
+            Treasury (10%) {showNetworkData && '- Network'}
           </span>
           <span className="font-semibold text-foreground">
             {showNetworkData 
               ? formatHbar((networkStats.totalPrizePool * BigInt(10)) / BigInt(100))
               : formatHbar(treasuryReward)
-            } STT
+            } ETN
           </span>
         </div>
         {showNetworkData && (
           <div className="pt-2 border-t border-border/50">
             <p className="text-xs text-blue-600">
-              📡 Network data powered by Somnia SDK
+              ⚡ Network data powered by Electroneum EVM
             </p>
           </div>
         )}
@@ -164,3 +164,4 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
     </div>
   )
 }
+

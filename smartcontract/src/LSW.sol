@@ -2,8 +2,11 @@
 
 pragma solidity ^0.8.19;
 
-// Last Staker Win Contract
-// written by 0xblackadam
+/**
+ * @title Last Staker Wins (LSW) - Electroneum Blockchain
+ * @author 0xblackadam
+ * @notice Competitive ETN Staking game smart contract for Electroneum EVM
+ */
 
 interface IRewarder {
     function rewardRandomParticipants(uint256 roundId, uint256 winnerAmount, uint256 randomParticipantsAmount, uint256 platformTreasuryAmount) payable external;
@@ -128,6 +131,7 @@ contract LSW {
         // Mark round as claimed first to prevent reentrancy
         currentStake.claimed = true;
 
+
         // Distribute rewards only if there's a winner and amount to distribute
         if (currentStake.winner != address(0) && currentStake.amount > 0) {
             _distributeRewards(roundId);
@@ -137,6 +141,7 @@ contract LSW {
         roundId++;
         _initializeRound();
     }
+
 
     function _distributeRewards(uint256 _roundId) private {
         Stake storage stakeData = stakes[_roundId];
@@ -151,16 +156,23 @@ contract LSW {
         (bool success, ) = payable(stakeData.winner).call{value: winnerAmount}("");
         if (!success) revert TransferFailed();
 
-        // Call rewarder contract for random participant distribution
-        IRewarder(rewarderContract).rewardRandomParticipants{value: randomParticipantsAmount + platformTreasuryAmount}(
-            _roundId, 
-            winnerAmount, 
-            randomParticipantsAmount, 
-            platformTreasuryAmount
-        );
+        // Call rewarder contract for random participant distribution, or fallback to treasury if not set
+        if (rewarderContract != address(0)) {
+            IRewarder(rewarderContract).rewardRandomParticipants{value: randomParticipantsAmount + platformTreasuryAmount}(
+                _roundId, 
+                winnerAmount, 
+                randomParticipantsAmount, 
+                platformTreasuryAmount
+            );
+        } else {
+            address targetTreasury = treasury != address(0) ? treasury : owner;
+            (bool treasurySuccess, ) = payable(targetTreasury).call{value: randomParticipantsAmount + platformTreasuryAmount}("");
+            if (!treasurySuccess) revert TransferFailed();
+        }
 
         emit RewardsDistributed(_roundId, stakeData.winner, winnerAmount, randomParticipantsAmount, platformTreasuryAmount);
     }
+
 
     function stake() public payable {
         if (msg.value < stakeAmount) {

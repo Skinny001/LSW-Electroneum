@@ -30,19 +30,17 @@ export function useContractRead(refreshInterval = 1000) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [round, timeRem, timeUntilStakingStart, stakingAvail, stakeAmt] = await Promise.all([
-        getCurrentRoundInfo(),
-        getTimeRemaining(),
-        getTimeUntilStakingAvailable(),
-        isStakingAvailable(),
-        getStakeAmount(),
-      ])
-
+      const round = await getCurrentRoundInfo()
       setRoundInfo(round)
+      
+      const now = BigInt(Math.floor(Date.now() / 1000))
+      const timeRem = round.deadline > now ? round.deadline - now : BigInt(0)
+      const timeUntil = round.stakingAvailableAt > now ? round.stakingAvailableAt - now : BigInt(0)
+      const stakingAvail = now >= round.stakingAvailableAt && round.isActive && round.deadline > now
+
       setTimeRemaining(timeRem)
-      setTimeUntilStaking(timeUntilStakingStart)
+      setTimeUntilStaking(timeUntil)
       setIsStakingAvailableState(stakingAvail)
-      setStakeAmount(stakeAmt)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch contract data")
@@ -53,7 +51,7 @@ export function useContractRead(refreshInterval = 1000) {
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(fetchData, 10000) // 10 seconds
+    const interval = setInterval(fetchData, 30000) // 30 seconds
     return () => clearInterval(interval)
   }, [fetchData])
 

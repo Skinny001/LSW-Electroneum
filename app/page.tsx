@@ -50,7 +50,7 @@ export default function Home() {
         <div className="text-center space-y-4 fade-in">
           <div className="text-4xl font-bold text-accent">Last Staker Wins</div>
           <div className="text-destructive">{error || "Failed to load game data"}</div>
-          <div className="text-sm text-muted-foreground mt-4">Make sure you're connected to Somnia Testnet</div>
+          <div className="text-sm text-muted-foreground mt-4">Make sure you're connected to Electroneum Testnet / Mainnet</div>
         </div>
       </div>
     )
@@ -69,18 +69,15 @@ export default function Home() {
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
           <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out">
-              <img 
-                src="/LSW-logo.png" 
-                alt="LSW Logo" 
-                className="w-10 h-10 object-contain rounded-lg"
-              />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-600/20 text-blue-400 font-bold text-xl border border-blue-500/30">
+              ⚡
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-foreground">Last Staker Wins</h1>
-              <p className="text-xs text-muted-foreground">Somnia Testnet</p>
+              <p className="text-xs text-muted-foreground">Electroneum Blockchain</p>
             </div>
           </div>
+
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
             <div className="text-left sm:text-right w-full sm:w-auto">
               <div className="text-sm text-muted-foreground">Round #{roundInfo.roundId.toString()}</div>

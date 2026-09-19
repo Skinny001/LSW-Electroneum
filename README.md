@@ -1,153 +1,114 @@
-# Last Staker Wins (LSW) - Somnia Testnet
+# Last Staker Wins (LSW) - Electroneum Blockchain
 
-Last Staker Wins is a competitive blockchain game on Somnia Testnet where players stake STT tokens to become the last staker before the round deadline. The game combines strategy, timing, and luck with fair reward distribution powered by Chainlink VRF.
+**Last Staker Wins (LSW)** is a competitive decentralized Web3 game built on the **Electroneum (ETN) Blockchain**. Players stake native ETN tokens to become the last staker before the round countdown expires. The game combines timing, strategy, and fair reward distribution with late-stake deadline extensions.
 
-## Quick Links
+---
 
-- **Live Demo**: [https://lsw-somnia.vercel.app](https://lsw-somnia.vercel.app)
-- **Smart Contract Documentation**: [See smartcontract/README.md](./smartcontract/README.md) for detailed technical information about the LSW and Rewarder contracts, deployment guide, and testing instructions.
+## 🚀 Quick Links & Submission Metadata
 
-## Overview
+* **dApp / Prototype:** [https://lsw-somnia.vercel.app](https://lsw-somnia.vercel.app) (Update with live URL)
+* **GitHub Repository:** [https://github.com/Skinny001/LSW-Somnia](https://github.com/Skinny001/LSW-Somnia)
+* **Network:** Electroneum Testnet (Chain ID `5201420`) / Electroneum Mainnet (Chain ID `52014`)
+* **Currency:** Native `ETN` (18 decimals)
 
-**Game Features:**
-- Strategic timing mechanics with dynamic deadline extensions
-- Fair reward distribution: 70% winner, 20% random participants, 10% treasury
-- Real-time activity updates
-- Mobile-optimized responsive design
-- Chainlink VRF integration for provably fair randomness  
+---
+
+## 📊 Technical Deliverables & Features
+
+### 1. 📱 Usable dApp / Prototype
+* **Real-time Round Countdown:** Dynamic game timer showing time remaining and staking wait periods.
+* **1-Click Staking Interface:** Easily stake minimum ETN (`0.01 ETN`) directly from MetaMask or any injected Web3 wallet.
+* **Prize Pool Breakdown:** Visual pool distribution showing 70% Winner, 20% Random Participants, and 10% Treasury share.
+* **Live EVM Activity Feed:** Automatic real-time tracking of `StakeReceived`, `RoundStarted`, `RoundEnded`, and `RewardsDistributed` events on Electroneum.
+* **Round History:** Comprehensive history of past winners and reward payouts.
+
+### 2. 💻 Electroneum Smart Contracts ([`smartcontract/`](./smartcontract))
+* **LSW Contract (`LSW.sol`):** Manages round initialization, stake collection, buffer deadline extensions, and distribution triggers.
+* **Rewarder Contract (`rewarder.sol`):** Allocates participant rewards evenly or pseudo-randomly among round stakers.
+
+**Deployed Contract Addresses (Electroneum Testnet):**
+* **LSW Contract:** `0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2`
+* **Rewarder Contract:** `0xb33A94Bf2c58AA7cAdA03c219860ecDf7DaeD299`
 
 
-## Architecture
-
-**Frontend Stack:**
-- Next.js 16 with App Router
-- TypeScript for type safety
-- Tailwind CSS + shadcn/ui for design
-- Wagmi v2 + Viem for blockchain interactions
-- Real-time contract event listening
-
-**Smart Contracts (Somnia Testnet):**
-- **LSW Contract**: `0xab20e6D156F6F1ea70793a70C01B1a379b603D50` - Round management and stake collection
-- **Rewarder Contract**: `0x0673d3E814Ea61E3c7400E97E5ec31B6b84ff872` - Reward distribution with Chainlink VRF
-
-**Data Streaming (Somnia Streams SDK):**
-- **Schema ID**: `0x031db35182a3329e459bb35cb88f797dbe1a1198d959de547d8bda570a93fe45`
-- **Publisher Address**: `0x311350f1c7Ba0F1749572Cc8A948Dd7f9aF1f42a`
-- **RoundEnded Schema**: `uint256 roundId, address winner, uint256 totalAmount, uint256 timestamp`
-
-## Game Flow
-
-1. **Round Initialization** - New round starts with a configurable duration
-2. **Staking Phase** - Users can stake STT after a wait period
-3. **Dynamic Deadlines** - Late stakes within the buffer period extend the deadline
-4. **Round End** - Winner is determined (last staker), rewards are distributed
-5. **New Round** - Winner or owner can initiate the next round
-
-```mermaid
-graph TD
-    A[🎯 Round Start] --> B[⏳ Wait Period<br/>3 minutes]
-    B --> C[💰 Staking Available]
-    C --> D{💸 New Stake?}
-    D -->|Yes| E[⏰ Extend Deadline?]
-    E -->|In Buffer Period| F[➕ Add Time]
-    E -->|Outside Buffer| G[🔄 Continue]
-    F --> D
-    G --> D
-    D -->|No| H[⌛ Deadline Reached]
-    H --> I[🏆 Winner Declared]
-    I --> J[🎲 VRF Random Selection]
-    J --> K[💳 Reward Distribution]
-    K --> A
-```
-
-For complete technical details, contract function documentation, deployment instructions, and testing guide, see [smartcontract/README.md](./smartcontract/README.md).
-
-## Somnia Streams SDK Integration
-
-The application uses **Somnia Streams SDK** for on-chain data streaming and real-time round history tracking.
-
-### How It Works
-
-1. **Round Events to Streams** - When a round ends, the `RoundEnded` event is encoded and published to Somnia Streams
-2. **Live History Updates** - The `useSmartRoundHistory` hook:
-   - Fetches all rounds from Streams using the literal schema string
-   - Compares contract round with latest stream round
-   - Syncs missing rounds from Logs API via `/api/publish-round`
-   -  Displays on the Round History page
-
-### Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Round History Flow                       │
-└─────────────────────────────────────────────────────────────┘
-
-1. Hook Initialization (useSmartRoundHistory)
-   ├─ Initialize Somnia SDK
-   └─ Fetch all rounds from Streams
-
-2. Streams Fetch
-   ├─ Use literal schema: "uint256 roundId, address winner, uint256 totalAmount, uint256 timestamp"
-   ├─ Decode with SchemaEncoder
-   └─ Parse into RoundHistory objects
-
-3. Sync Detection
-   ├─ Get current contract round
-   ├─ Compare: if currentRound > latestStreamRound + 1
-   └─ Trigger sync if out of sync
-
-4. Missing Rounds Sync
-   ├─ Fetch from Logs API: https://somnia.w3us.site/api/v2/addresses/{CONTRACT}/logs
-   ├─ Filter for RoundEnded events
-   ├─ Extract all missing rounds
-   └─ Push via /api/publish-round → publishRoundEndedEventServer()
-
-5. UI Display
-   ├─ Merge Streams + synced rounds
-   └─ Sort and display
-```
-
----## Getting Started
-
-**For Players:**
-1. Connect your Web3 wallet (MetaMask, WalletConnect, etc.)
-2. Switch to Somnia Testnet
-3. Get STT tokens from the Somnia faucet
-4. Visit the [live demo](https://lsw-somnia.vercel.app) and start playing
-
-**For Developers:**
-
+### 3. 📝 Setup Guide & Documentation
 
 #### Prerequisites
-- Node.js 18+
-- Git
-- Web3 wallet for testing
+* Node.js v18+
+* npm or pnpm
+* MetaMask or Web3 Wallet configured for Electroneum
 
-####  Local Development
+#### Electroneum Network Configuration
+Add Electroneum Testnet or Mainnet to your wallet:
 
+| Parameter | Electroneum Testnet | Electroneum Mainnet |
+| :--- | :--- | :--- |
+| **Network Name** | Electroneum Testnet | Electroneum Mainnet |
+| **Chain ID** | `5201420` | `52014` |
+| **RPC URL** | `https://rpc.ankr.com/electroneum_testnet` | `https://rpc.electroneum.com` |
+| **Currency Symbol** | `ETN` | `ETN` |
+| **Block Explorer** | `https://testnet-blockexplorer.electroneum.com` | `https://blockexplorer.electroneum.com` |
+
+#### Local Development Setup
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/Skinny001/LSW-Somnia.git
 cd LSW-Somnia
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Set up environment
+# 3. Environment configuration
 cp .env.example .env.local
-# Add your wallet and contract addresses
 
-# Run development server
+# 4. Start local development server
 npm run dev
 
-# Build for production
-npm run build
+# 5. Open in browser
+# Visit http://localhost:3000
 ```
 
+#### Smart Contract Compilation & Deployment (Foundry)
+```bash
+cd smartcontract
 
+# Compile contracts
+forge build
 
-See [smartcontract/README.md](./smartcontract/README.md) for:
-- Smart contract deployment guide
-- Testing instructions
-- Environment setup
-- Contract architecture details
+# Deploy to Electroneum Testnet
+forge script script/LSW.s.sol:LSWScript \
+  --rpc-url https://rpc.ankr.com/electroneum_testnet \
+  --private-key YOUR_PRIVATE_KEY \
+  --broadcast
+```
+
+---
+
+## 🎮 Game Mechanics & Flow
+
+```mermaid
+graph TD
+    A[🎯 Round Start] --> B[⏳ Staking Wait Period<br/>3 minutes]
+    B --> C[💰 Staking Open]
+    C --> D{💸 New ETN Stake?}
+    D -->|Yes| E[⏰ Within Buffer Period?]
+    E -->|Yes| F[➕ Extend Deadline +5m]
+    E -->|No| G[🔄 Update Last Staker]
+    F --> D
+    G --> D
+    D -->|No| H[⌛ Timer Reached 0:00]
+    H --> I[🏆 Winner Declared (Last Staker)]
+    I --> J[💳 70% Winner / 20% Participants / 10% Treasury]
+    J --> A
+```
+
+---
+
+## 📋 Submission Entry for `PROJECTS.md`
+
+To add this project to the [Electroneum-Projects-From-Africa](https://github.com/electroneumafrica/Electroneum-Projects-From-Africa) registry:
+
+```markdown
+| **Last Staker Wins (LSW)**<br>A competitive ETN staking game where the last staker before deadline wins 70% of the prize pool.<br>*Stack: Next.js 16, Solidity, Viem, Wagmi, Tailwind*<br>*Contracts: Testnet (`0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2`)* | Your Name<br>🌍 Country | [GitHub Repo](https://github.com/Skinny001/LSW-Somnia) | [Live Demo](https://lsw-somnia.vercel.app) | ✅ | ✅ | ✅ |
+```
+

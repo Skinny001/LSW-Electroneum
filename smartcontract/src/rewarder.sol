@@ -64,12 +64,13 @@ contract Rewarder {
         address _lswContract,
         address _vrfWrapperAddress
     ) {
-        if (_lswContract == address(0) || _vrfWrapperAddress == address(0)) revert ZeroAddress();
+        if (_lswContract == address(0)) revert ZeroAddress();
         
         owner = msg.sender;
         lswContract = _lswContract;
         vrfWrapperAddress = _vrfWrapperAddress;
     }
+
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
@@ -147,42 +148,47 @@ contract Rewarder {
         uint256 participantAmount,
         uint256 treasuryAmount
     ) private {
-            // Request randomness from the VRF wrapper
-            IVRFV2PlusWrapper wrapper = IVRFV2PlusWrapper(vrfWrapperAddress);
-            
-            uint256 vrfCost = getRequestPrice();
-            
-            if (address(this).balance < vrfCost) {
-                revert InsufficientPayment(vrfCost, address(this).balance);
+            // Check if VRF wrapper is contract on chain
+            if (vrfWrapperAddress == address(0) || vrfWrapperAddress.code.length == 0) {
+                address[] memory stakers = ILSW(lswContract).getRoundStakers(roundId);
+                _distributeToAllParticipants(roundId, stakers, participantAmount, treasuryAmount);
+                return;
             }
 
-            // Encode extraArgs: tag (4 bytes) + ExtraArgsV1 struct (32 bytes) = 36 bytes
-            // Use the proper VRFV2PlusClient tag
-            bytes memory args = abi.encodePacked(
-                VRFV2PlusClient.EXTRA_ARGS_V1_TAG,
-                abi.encode(VRFV2PlusClient.ExtraArgsV1({nativePayment: true}))
-            );
-            
-            // Request randomness with the calculated cost
-            uint256 requestId = wrapper.requestRandomWordsInNative{value: vrfCost}(
-                CALLBACK_GAS_LIMIT,
-                REQUEST_CONFIRMATIONS,
-                NUM_WORDS,
-                args
-            );
-            
-            // Store pending reward info
-            pendingRewards[requestId] = PendingReward({
-                roundId: roundId,
-                randomParticipantsAmount: participantAmount,
-                platformTreasuryAmount: treasuryAmount,
-                fulfilled: false
-            });
-            
-            roundToRequestId[roundId] = requestId;
-            
-            emit RandomnessRequested(roundId, requestId, vrfCost);
+            try IVRFV2PlusWrapper(vrfWrapperAddress).calculateRequestPrice(CALLBACK_GAS_LIMIT, NUM_WORDS) returns (uint256 vrfCost) {
+                if (address(this).balance < vrfCost) {
+                    address[] memory stakers = ILSW(lswContract).getRoundStakers(roundId);
+                    _distributeToAllParticipants(roundId, stakers, participantAmount, treasuryAmount);
+                    return;
+                }
+
+                bytes memory args = abi.encodePacked(
+                    VRFV2PlusClient.EXTRA_ARGS_V1_TAG,
+                    abi.encode(VRFV2PlusClient.ExtraArgsV1({nativePayment: true}))
+                );
+                
+                uint256 requestId = IVRFV2PlusWrapper(vrfWrapperAddress).requestRandomWordsInNative{value: vrfCost}(
+                    CALLBACK_GAS_LIMIT,
+                    REQUEST_CONFIRMATIONS,
+                    NUM_WORDS,
+                    args
+                );
+                
+                pendingRewards[requestId] = PendingReward({
+                    roundId: roundId,
+                    randomParticipantsAmount: participantAmount,
+                    platformTreasuryAmount: treasuryAmount,
+                    fulfilled: false
+                });
+                
+                roundToRequestId[roundId] = requestId;
+                emit RandomnessRequested(roundId, requestId, vrfCost);
+            } catch {
+                address[] memory stakers = ILSW(lswContract).getRoundStakers(roundId);
+                _distributeToAllParticipants(roundId, stakers, participantAmount, treasuryAmount);
+            }
     }
+
 
     // Callback function called by VRF Wrapper
     function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external {

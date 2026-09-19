@@ -1,31 +1,51 @@
 import { defineChain, http } from "viem"
 import { createConfig, cookieStorage, createStorage } from "wagmi"
 import { injected } from "wagmi/connectors"
-import { SOMNIA_CHAIN_ID, SOMNIA_CHAIN_NAME, SOMNIA_RPC_URL } from "./somnia-config"
+import { ELECTRONEUM_CHAIN_ID, ELECTRONEUM_CHAIN_NAME, ELECTRONEUM_RPC_URL, ELECTRONEUM_EXPLORER_URL } from "./electroneum-config"
 
-// Define Somnia Testnet chain
-export const somniaTestnet = defineChain({
-  id: SOMNIA_CHAIN_ID,
-  name: SOMNIA_CHAIN_NAME,
-  nativeCurrency: { name: "Somnia Token", symbol: "STT", decimals: 18 },
+// Define Electroneum Testnet chain
+export const electroneumTestnet = defineChain({
+  id: ELECTRONEUM_CHAIN_ID,
+  name: ELECTRONEUM_CHAIN_NAME,
+  nativeCurrency: { name: "Electroneum", symbol: "ETN", decimals: 18 },
   rpcUrls: {
-    default: { http: [SOMNIA_RPC_URL] },
+    default: { http: [ELECTRONEUM_RPC_URL] },
   },
   blockExplorers: {
-    // Explorer URL is optional; update if you have an official Somnia explorer URL
-    default: { name: "Somnia Explorer", url: "https://explorer.somnia.network" },
+    default: { name: "Electroneum Explorer", url: ELECTRONEUM_EXPLORER_URL },
   },
+  testnet: true,
 })
 
-// Create wagmi config for Somnia Testnet
+// Define Electroneum Mainnet chain
+export const electroneumMainnet = defineChain({
+  id: 52014,
+  name: "Electroneum Mainnet",
+  nativeCurrency: { name: "Electroneum", symbol: "ETN", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc.electroneum.com"] },
+  },
+  blockExplorers: {
+    default: { name: "Electroneum Explorer", url: "https://blockexplorer.electroneum.com" },
+  },
+  testnet: false,
+})
+
+// Backward-compatible alias
+export const somniaTestnet = electroneumTestnet
+
+// Create wagmi config for Electroneum
 export const wagmiConfig = createConfig({
-  chains: [somniaTestnet],
+  chains: [electroneumTestnet, electroneumMainnet],
   connectors: [injected()],
   transports: {
-    [somniaTestnet.id]: http(SOMNIA_RPC_URL),
+    // Route testnet traffic through our server-side proxy to handle Ankr rate limits gracefully
+    [electroneumTestnet.id]: http("/api/rpc", { retryCount: 5, retryDelay: 1000 }),
+    [electroneumMainnet.id]: http("https://rpc.electroneum.com", { retryCount: 5, retryDelay: 1000 }),
   },
   storage: createStorage({
     storage: cookieStorage,
   }),
   ssr: true,
 })
+
