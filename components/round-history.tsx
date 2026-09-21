@@ -24,7 +24,7 @@ export default function RoundHistory() {
   }, [triggerSync])
 
   return (
-    <Card className="w-full">
+    <Card className="w-full card-3d">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -139,7 +139,7 @@ export default function RoundHistory() {
                       {rounds.slice(2).map((round, idx) => (
                         <div
                           key={`history-${idx}`}
-                          className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                          className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors stat-3d"
                         >
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">

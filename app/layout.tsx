@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Last Staker Wins - Somnia Testnet",
-  description: "Compete for the prize pool on Somnia Testnet",
+  title: "Last Staker Wins - Electroneum Testnet",
+  description: "Compete for the prize pool on Electroneum Testnet",
   generator: "v0.app",
   icons: {
     icon: '/LSW-logo.png',

@@ -121,29 +121,10 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
       if (result) {
         console.log("Stake transaction submitted via wallet:", result)
         setSuccessMessage(`Stake submitted: ${String(result).slice(0, 10)}...`)
-        return
       }
     } catch (err: any) {
-      console.warn("Wallet stake failed or rate-limited, triggering server relayer fallback...", err)
-    }
-
-    // Fallback: server relayer if wallet RPC is rate limited
-    try {
-      setLocalError("Wallet RPC rate limited. Relaying stake via server...")
-      const res = await fetch("/api/stake-relayer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userAddress: address }),
-      })
-      const data = await res.json()
-      if (data.success && data.hash) {
-        setLocalError(null)
-        setSuccessMessage(`Stake confirmed on-chain! Tx: ${data.hash.slice(0, 10)}...`)
-      } else {
-        setLocalError(data.error || "Stake transaction failed")
-      }
-    } catch (relayErr: any) {
-      setLocalError("Stake failed: " + (relayErr?.message || "Server error"))
+      console.warn("Wallet stake failed:", err)
+      setLocalError(error || "Stake transaction failed. If you see a rate limit error, please try again in a few minutes.")
     }
   }
 
@@ -187,7 +168,7 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
   }
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+    <div className="bg-card rounded-lg p-6 space-y-4 card-3d">
       <div className="space-y-2">
   <h3 className="text-lg font-semibold">Stake ETN</h3>
   <p className="text-sm text-muted-foreground">Minimum stake: {formatHbar(minimumStake)} ETN</p>

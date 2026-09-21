@@ -1,156 +1,220 @@
-"use client"
-
-import { useContractRead } from "@/hooks/use-contract-read"
-import { useState, useEffect } from "react"
-import { TimerDisplay } from "@/components/timer-display"
-import { PrizePoolCard } from "@/components/prize-pool-card"
-import { StakingInterface } from "@/components/staking-interface"
-import { ActivityFeed } from "@/components/activity-feed"
-import { GameStatus } from "@/components/game-status"
-import RoundHistory from "@/components/round-history"
-import { WalletButton } from "@/components/wallet-button"
-import { useOwnerCheck } from "@/hooks/use-owner-check"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import Image from "next/image"
+import { ArrowRight, Timer, Trophy, Zap, Shield, Users, Coins } from "lucide-react"
 
+export const metadata = {
+  title: "Last Staker Wins — Electroneum Blockchain Game",
+  description:
+    "The last player to stake ETN before the countdown hits zero wins 70% of the prize pool. Stake. Wait. Win. Built on the Electroneum Testnet.",
+}
 
-export default function Home() {
-  const [stakeAmountUpdated, setStakeAmountUpdated] = useState(0)
-  const { roundInfo, timeRemaining, timeUntilStaking, isStakingAvailable, loading, error } = useContractRead()
-  const { isOwner, loading: ownerLoading, isConnected } = useOwnerCheck()
-
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-
-
-
-
-  if (!mounted) {
-    return null
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4 fade-in">
-          <div className="text-4xl font-bold text-accent float">Last Staker Wins</div>
-          <div className="text-muted-foreground">Loading game data...</div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error || !roundInfo) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4 fade-in">
-          <div className="text-4xl font-bold text-accent">Last Staker Wins</div>
-          <div className="text-destructive">{error || "Failed to load game data"}</div>
-          <div className="text-sm text-muted-foreground mt-4">Make sure you're connected to Electroneum Testnet / Mainnet</div>
-        </div>
-      </div>
-    )
-  }
-
-  const isRoundExpired = Number(timeRemaining) === 0
-
-  // Callback to trigger refresh
-  const handleStakeAmountUpdate = () => {
-    setStakeAmountUpdated(Date.now())
-  }
-
+export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-background">
-      {/* Header - mobile responsive */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-          <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-600/20 text-blue-400 font-bold text-xl border border-blue-500/30">
-              ⚡
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold text-foreground">Last Staker Wins</h1>
-              <p className="text-xs text-muted-foreground">Electroneum Blockchain</p>
-            </div>
-          </div>
+    <main className="lsw-landing">
+      {/* Animated background grid */}
+      <div className="landing-bg" aria-hidden="true">
+        <div className="grid-overlay" />
+        <div className="glow-orb glow-orb-1" />
+        <div className="glow-orb glow-orb-2" />
+      </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-            <div className="text-left sm:text-right w-full sm:w-auto">
-              <div className="text-sm text-muted-foreground">Round #{roundInfo.roundId.toString()}</div>
-            </div>
-            {isOwner && !ownerLoading && (
-              <Link href="/admin">
-                <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                  Admin Panel
-                </Button>
-              </Link>
-            )}
-            <div className="w-full sm:w-auto flex flex-row sm:flex-row items-center gap-2">
-              <WalletButton />
-            </div>
+      {/* ── NAVBAR ─────────────────────────────────────── */}
+      <header className="landing-nav">
+        <Link href="/" className="landing-logo">
+          <Image src="/LSW-logo.png" alt="Last Staker Wins" width={36} height={36} className="logo-img" />
+          <span>
+            Last Staker<em>Wins</em>
+          </span>
+        </Link>
+
+        <nav className="landing-site-nav" aria-label="Primary navigation">
+          <Link href="/" className="nav-link active">
+            Home
+          </Link>
+          <Link href="/dashboard" className="nav-link">
+            Dashboard
+          </Link>
+        </nav>
+
+        <div className="landing-nav-right">
+          <div className="network-pill">
+            <i className="network-dot" />
+            Electroneum Testnet
           </div>
+          <Link href="/dashboard" className="launch-btn">
+            Launch App <ArrowRight size={15} aria-hidden="true" />
+          </Link>
         </div>
       </header>
 
-      {/* Main Content - mobile responsive */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Game Status Banner */}
-        <div className="slide-in-up">
-          <GameStatus
-            isActive={roundInfo.isActive}
-            isStakingAvailable={isStakingAvailable}
-            timeRemaining={timeRemaining}
-            timeUntilStaking={timeUntilStaking}
-          />
+      {/* ── HERO ───────────────────────────────────────── */}
+      <section className="hero-section" id="top">
+        <div className="hero-eyebrow">
+          COMPETITIVE STAKING GAME <span>•</span> ELECTRONEUM TESTNET
         </div>
 
-        {/* Timer Section */}
-        <div className="bg-card border border-border rounded-lg p-4 sm:p-8 text-center slide-in-up">
-          <TimerDisplay
-            timeRemaining={timeRemaining}
-            timeUntilStaking={timeUntilStaking}
-            isStakingAvailable={isStakingAvailable}
-            isActive={roundInfo.isActive}
-          />
+        <h1 className="hero-headline">
+          Stake last.
+          <br />
+          <em>Win everything.</em>
+        </h1>
+
+        <p className="hero-lede">
+          Last Staker Wins is a high-stakes countdown game on the Electroneum blockchain.
+          Every stake resets the timer. The final player to stake before it hits zero
+          walks away with <strong>70% of the entire prize pool.</strong>
+        </p>
+
+        <div className="hero-actions">
+          <Link href="/dashboard" className="primary-cta">
+            Play Now <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+          <Link href="/dashboard" className="secondary-cta">
+            View Dashboard
+          </Link>
         </div>
 
-        {/* Main Grid - mobile responsive */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
-          {/* Left Column - Prize Pool */}
-          <div className="lg:col-span-1 slide-in-up">
-            <PrizePoolCard
-              totalAmount={roundInfo.totalAmount}
-              stakersCount={roundInfo.stakersCount}
-              lastStaker={roundInfo.lastStaker}
-            />
+        {/* Live stats bar */}
+        <div className="live-stats-bar">
+          <div className="live-badge">
+            <span className="live-dot" />
+            LIVE
           </div>
-
-          {/* Middle Column - Staking */}
-          <div className="lg:col-span-1 slide-in-up">
-            <StakingInterface
-              isStakingAvailable={isStakingAvailable}
-              isRoundExpired={isRoundExpired}
-              isActive={roundInfo.isActive}
-              stakeAmountUpdated={stakeAmountUpdated}
-              roundId={roundInfo.roundId}
-            />
+          <div className="stat-item">
+            <Coins size={14} />
+            <span>0.01 ETN minimum stake</span>
           </div>
-
-          {/* Right Column - Activity Feed */}
-          <div className="lg:col-span-1 slide-in-up">
-            <ActivityFeed currentRoundId={roundInfo?.roundId ?? BigInt(0)} />
+          <div className="stat-divider" />
+          <div className="stat-item">
+            <Timer size={14} />
+            <span>Timer resets every stake</span>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-item">
+            <Trophy size={14} />
+            <span>70% to last staker</span>
           </div>
         </div>
+      </section>
 
-        {/* Round History Section */}
-        <div className="slide-in-up">
-          <RoundHistory />
+      {/* ── HOW IT WORKS ───────────────────────────────── */}
+      <section className="how-section">
+        <div className="section-label">HOW IT WORKS</div>
+        <h2 className="section-title">Three simple rules</h2>
+
+        <div className="steps-grid">
+          <article className="step-card">
+            <div className="step-number">01</div>
+            <div className="step-icon">
+              <Zap size={24} />
+            </div>
+            <h3>Connect & Stake</h3>
+            <p>
+              Connect your MetaMask wallet on Electroneum Testnet and stake the minimum
+              amount (0.01 ETN) to enter the round.
+            </p>
+          </article>
+
+          <article className="step-card">
+            <div className="step-number">02</div>
+            <div className="step-icon">
+              <Timer size={24} />
+            </div>
+            <h3>Watch the Timer</h3>
+            <p>
+              Every new stake resets the countdown by 5 minutes. The game continues as
+              long as players keep staking before the timer reaches zero.
+            </p>
+          </article>
+
+          <article className="step-card step-card-accent">
+            <div className="step-number">03</div>
+            <div className="step-icon">
+              <Trophy size={24} />
+            </div>
+            <h3>Last One Wins</h3>
+            <p>
+              When the timer finally hits zero, the last person who staked wins 70% of
+              the prize pool. No tricks. Pure on-chain logic.
+            </p>
+          </article>
         </div>
-      </div>
+      </section>
+
+      {/* ── PRIZE BREAKDOWN ────────────────────────────── */}
+      <section className="prize-section">
+        <div className="section-label">PRIZE DISTRIBUTION</div>
+        <h2 className="section-title">Where does the ETN go?</h2>
+
+        <div className="prize-grid">
+          <div className="prize-card prize-winner">
+            <div className="prize-percent">70%</div>
+            <div className="prize-label">Last Staker</div>
+            <div className="prize-desc">The winner takes the majority of the pool</div>
+          </div>
+          <div className="prize-card prize-participants">
+            <div className="prize-percent">20%</div>
+            <div className="prize-label">Random Participants</div>
+            <div className="prize-desc">Randomly selected participants share this</div>
+          </div>
+          <div className="prize-card prize-treasury">
+            <div className="prize-percent">10%</div>
+            <div className="prize-label">Treasury</div>
+            <div className="prize-desc">Protocol sustainability and development</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURES ───────────────────────────────────── */}
+      <section className="features-section">
+        <div className="features-grid">
+          <article className="feature-card">
+            <Shield size={22} className="feature-icon" />
+            <h3>On-Chain by Design</h3>
+            <p>All game logic lives in a verified smart contract on Electroneum. No off-chain servers control the outcome.</p>
+          </article>
+
+          <article className="feature-card">
+            <Users size={22} className="feature-icon" />
+            <h3>Open to Everyone</h3>
+            <p>Any wallet connected to Electroneum Testnet can join. Each round starts fresh with a new prize pool.</p>
+          </article>
+
+          <article className="feature-card">
+            <Zap size={22} className="feature-icon" />
+            <h3>Real-Time Feed</h3>
+            <p>Watch live stake events appear in the activity feed as they hit the blockchain. Full transparency.</p>
+          </article>
+        </div>
+      </section>
+
+      {/* ── CTA BANNER ─────────────────────────────────── */}
+      <section className="cta-banner">
+        <h2>Ready to be the last staker?</h2>
+        <p>Connect your wallet and join the current round on Electroneum Testnet.</p>
+        <Link href="/dashboard" className="primary-cta">
+          Go to Dashboard <ArrowRight size={17} aria-hidden="true" />
+        </Link>
+      </section>
+
+      {/* ── FOOTER ─────────────────────────────────────── */}
+      <footer className="landing-footer">
+        <div className="footer-left">
+          <Image src="/LSW-logo.png" alt="LSW" width={22} height={22} className="logo-img" />
+          <span>Last Staker Wins</span>
+          <span className="footer-divider">•</span>
+          <span>Non-custodial. On-chain. Transparent.</span>
+        </div>
+        <div className="footer-right">
+          <a
+            href="https://testnet-blockexplorer.electroneum.com/address/0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2"
+            target="_blank"
+            rel="noreferrer"
+          >
+            View Contract ↗
+          </a>
+        </div>
+      </footer>
     </main>
   )
 }

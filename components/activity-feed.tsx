@@ -54,7 +54,7 @@ export function ActivityFeed({ currentRoundId }: { currentRoundId?: bigint }) {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full card-3d">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold flex items-center gap-2">

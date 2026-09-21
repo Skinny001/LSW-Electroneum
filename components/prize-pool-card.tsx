@@ -59,7 +59,7 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
   }, [])
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+    <div className="bg-card rounded-lg p-6 space-y-6 card-3d-accent">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-accent">Prize Pool</h2>
@@ -67,7 +67,7 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
             onClick={() => setShowNetworkData(!showNetworkData)}
             className="px-2 py-1 text-foreground text-xs hover:text-accent transition-colors"
           >
-            {showNetworkData ? 'Local' : 'SDK Network'}
+            {showNetworkData ? 'Local' : 'Global Network'}
           </button>
         </div>
         <div className="text-4xl font-bold text-foreground">
@@ -84,11 +84,11 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-background rounded p-4">
+        <div className="bg-background rounded p-4 stat-3d">
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
             {showNetworkData ? 'Online Players' : 'Participants'}
           </div>
-          <div className="text-2xl font-bold text-foreground">
+          <div className="text-2xl font-bold text-foreground text-3d-white">
             {showNetworkData 
               ? networkStats.onlinePlayers.toString()
               : stakersCount.toString()
@@ -100,7 +100,7 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
             </div>
           )}
         </div>
-        <div className="bg-background rounded p-4">
+        <div className="bg-background rounded p-4 stat-3d">
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
             {showNetworkData ? 'Stakes/Min' : 'Last Staker'}
           </div>
