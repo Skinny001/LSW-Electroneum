@@ -187,7 +187,7 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
   }
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+    <div className="surface-3d bg-card rounded-lg p-6 space-y-4">
       <div className="space-y-2">
   <h3 className="text-lg font-semibold">Stake ETN</h3>
   <p className="text-sm text-muted-foreground">Minimum stake: {formatHbar(minimumStake)} ETN</p>
@@ -205,7 +205,7 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
           <Button
             onClick={handleStartNewRound}
             disabled={isLoading}
-            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+            className="button-3d w-full bg-accent hover:bg-accent/90 text-accent-foreground"
             size="lg"
           >
             {isLoading ? "Starting Round..." : "Start New Round"}
@@ -225,7 +225,7 @@ export function StakingInterface({ isStakingAvailable, isRoundExpired, isActive,
           <Button
             onClick={handleStake}
             disabled={isLoading || isConfirming || !isConnected || !isAmountValid}
-            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+            className="button-3d w-full bg-accent hover:bg-accent/90 text-accent-foreground"
             size="lg"
           >
             {!isConnected

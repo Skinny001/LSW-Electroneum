@@ -20,7 +20,7 @@ export function AdminPanel({ onStakeAmountUpdate }: AdminPanelProps) {
   // return null
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-4 mt-8">
+    <div className="surface-3d bg-card rounded-lg p-6 space-y-4 mt-8">
       <h3 className="text-lg font-semibold">Admin Controls (Owner Only)</h3>
       <div className="space-y-2">
         <Button onClick={executeStartNewRound} disabled={isLoading || !isConnected} className="w-full">

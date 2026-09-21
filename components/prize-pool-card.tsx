@@ -59,7 +59,7 @@ export function PrizePoolCard({ totalAmount, stakersCount, lastStaker }: PrizePo
   }, [])
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+    <div className="surface-3d bg-card rounded-lg p-6 space-y-6">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-accent">Prize Pool</h2>

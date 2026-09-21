@@ -66,7 +66,7 @@ export function TimerDisplay({ timeRemaining, timeUntilStaking, isStakingAvailab
       pulseClass: "",
     },
     active: {
-      bgClass: "bg-accent/10",
+      bgClass: "bg-accent/15 inset-3d",
       textClass: "text-accent",
       pulseClass: "pulse-glow",
     },
@@ -85,7 +85,7 @@ export function TimerDisplay({ timeRemaining, timeUntilStaking, isStakingAvailab
   const config = statusConfig[status]
 
   return (
-    <div className={`flex flex-col items-center gap-4 p-8 rounded-lg border border-border ${config.bgClass}`}>
+    <div className={`flex flex-col items-center gap-4 p-8 rounded-lg border border-border ${config.bgClass} shadow-[inset_0_2px_0_oklch(0.35_0.02_250)]`}>
       <div className={`text-6xl font-bold font-mono ${config.textClass} ${config.pulseClass}`}>{displayTime}</div>
       <div className="space-y-1 text-center">
         <div className={`text-sm font-semibold uppercase tracking-wider ${config.textClass}`}>{displayLabel}</div>

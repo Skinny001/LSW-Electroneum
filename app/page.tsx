@@ -66,10 +66,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       {/* Header - mobile responsive */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-card sticky top-0 z-50 shadow-[0_6px_0_oklch(0.05_0.01_250)]">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
           <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-600/20 text-blue-400 font-bold text-xl border border-blue-500/30">
+            <div className="size-10 rounded-lg flex items-center justify-center bg-accent text-accent-foreground font-bold text-xl border border-accent shadow-[0_4px_0_oklch(0.42_0.1_150)]">
               ⚡
             </div>
             <div>
@@ -109,7 +109,7 @@ export default function Home() {
         </div>
 
         {/* Timer Section */}
-        <div className="bg-card border border-border rounded-lg p-4 sm:p-8 text-center slide-in-up">
+        <div className="surface-3d bg-card rounded-lg p-4 sm:p-8 text-center slide-in-up">
           <TimerDisplay
             timeRemaining={timeRemaining}
             timeUntilStaking={timeUntilStaking}

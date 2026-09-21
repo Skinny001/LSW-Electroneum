@@ -15,7 +15,7 @@ export function GameStatus({ isActive, isStakingAvailable, timeRemaining, timeUn
         title: "Waiting to Start",
         description: `Staking opens in ${minutesUntilStart} minute${minutesUntilStart !== 1 ? "s" : ""}`,
         color: "text-muted-foreground",
-        bgColor: "from-muted/20 to-muted/10",
+        bgColor: "bg-muted/20",
         borderColor: "border-muted/30",
       }
     }
@@ -25,7 +25,7 @@ export function GameStatus({ isActive, isStakingAvailable, timeRemaining, timeUn
         title: "Buffer Period Active",
         description: "Staking extends the deadline by 5 minutes each time",
         color: "text-orange-400",
-        bgColor: "from-orange-500/20 to-orange-500/10",
+        bgColor: "bg-orange-500/15",
         borderColor: "border-orange-500/30",
       }
     }
@@ -35,7 +35,7 @@ export function GameStatus({ isActive, isStakingAvailable, timeRemaining, timeUn
         title: "Final 30 Minutes",
         description: "The round is heating up - place your stake now",
         color: "text-accent",
-        bgColor: "from-accent/20 to-accent/10",
+        bgColor: "bg-accent/15",
         borderColor: "border-accent/30",
       }
     }
@@ -44,7 +44,7 @@ export function GameStatus({ isActive, isStakingAvailable, timeRemaining, timeUn
       title: "Round Active",
       description: "Place your stake to compete for the prize pool",
       color: "text-accent",
-      bgColor: "from-accent/20 to-accent/10",
+      bgColor: "bg-accent/15",
       borderColor: "border-accent/30",
     }
   }
@@ -52,7 +52,7 @@ export function GameStatus({ isActive, isStakingAvailable, timeRemaining, timeUn
   const status = getStatusMessage()
 
   return (
-    <div className={`bg-linear-to-r ${status.bgColor} border ${status.borderColor} rounded-lg p-6`}>
+    <div className={`surface-3d ${status.bgColor} border ${status.borderColor} rounded-lg p-6`}>
       <h2 className={`text-2xl font-bold ${status.color} mb-2`}>{status.title}</h2>
       <p className="text-muted-foreground">{status.description}</p>
     </div>
