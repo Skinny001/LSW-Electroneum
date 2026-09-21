@@ -170,7 +170,7 @@ export function NetworkInsights() {
 
       {/* Last Winner Highlight */}
       {networkStats.lastWinner && (
-        <div className="bg-linear-to-r from-green-500/10 to-blue-500/10 border border-green-500/30 rounded-lg p-4">
+        <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <Trophy className="w-5 h-5 text-green-500" />
             <span className="font-semibold text-green-600">Latest Network Winner</span>
