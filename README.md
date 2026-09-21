@@ -6,8 +6,7 @@
 
 ## 🚀 Quick Links & Submission Metadata
 
-* **dApp / Prototype:** [https://lsw-somnia.vercel.app](https://lsw-somnia.vercel.app) (Update with live URL)
-* **GitHub Repository:** [https://github.com/Skinny001/LSW-Somnia](https://github.com/Skinny001/LSW-Somnia)
+* **dApp / Prototype:** [https://lsw-electroneum-seven.vercel.app/](https://lsw-electroneum-seven.vercel.app/)
 * **Network:** Electroneum Testnet (Chain ID `5201420`) / Electroneum Mainnet (Chain ID `52014`)
 * **Currency:** Native `ETN` (18 decimals)
 
@@ -109,6 +108,6 @@ graph TD
 To add this project to the [Electroneum-Projects-From-Africa](https://github.com/electroneumafrica/Electroneum-Projects-From-Africa) registry:
 
 ```markdown
-| **Last Staker Wins (LSW)**<br>A competitive ETN staking game where the last staker before deadline wins 70% of the prize pool.<br>*Stack: Next.js 16, Solidity, Viem, Wagmi, Tailwind*<br>*Contracts: Testnet (`0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2`)* | Your Name<br>🌍 Country | [GitHub Repo](https://github.com/Skinny001/LSW-Somnia) | [Live Demo](https://lsw-somnia.vercel.app) | ✅ | ✅ | ✅ |
+| **Last Staker Wins (LSW)**<br>A competitive ETN staking game where the last staker before deadline wins 70% of the prize pool.<br>*Stack: Next.js 16, Solidity, Viem, Wagmi, Tailwind*<br>*Contracts: Testnet (`0x9341C730ceeB5Ead8b44939d56275eC4a7654Cf2`)* | Your Name<br>🌍 Country | [GitHub Repo](https://github.com/Skinny001/LSW-Somnia) | [Live Demo](https://lsw-electroneum-seven.vercel.app/) | ✅ | ✅ | ✅ |
 ```
 
